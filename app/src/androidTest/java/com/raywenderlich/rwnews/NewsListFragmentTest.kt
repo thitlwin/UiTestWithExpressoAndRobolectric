@@ -1,10 +1,21 @@
 package com.raywenderlich.rwnews
 
 import android.provider.SyncStateContract.Helpers.insert
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.raywenderlich.rwnews.di.AppModule
 import com.raywenderlich.rwnews.logger.RwNewsLogger
 import com.raywenderlich.rwnews.repository.NewsRepository
 import com.raywenderlich.rwnews.repository.entity.News
+import com.raywenderlich.rwnews.ui.list.NewsListFragment
+import com.raywenderlich.rwnews.ui.list.NewsListItemViewHolder
+import com.raywenderlich.rwnews.util.FakeNewsLogger
+import com.raywenderlich.rwnews.util.FakeNewsRepository
+import com.raywenderlich.rwnews.util.launchFragmentInHiltContainer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,6 +25,7 @@ import dagger.hilt.android.testing.UninstallModules
 import dagger.hilt.components.SingletonComponent
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 
 @HiltAndroidTest
 @UninstallModules(AppModule::class) // HERE
@@ -42,5 +54,21 @@ class NewsListFragmentTest {
 
         @Provides
         fun provideNewsLogger(): RwNewsLogger = FakeNewsLogger() // 2
+    }
+
+    @Test
+    fun whenDisplayed_newsListFromRepoIsDisplayed() { // 1
+        launchFragmentInHiltContainer<NewsListFragment>() // 2
+        scrollAtAndCheckTestVisible(0, "First Title")
+        scrollAtAndCheckTestVisible(1, "Second Title")
+        scrollAtAndCheckTestVisible(2, "Third Title")
+    }
+
+    private fun scrollAtAndCheckTestVisible(position: Int, text: String) {
+        onView(ViewMatchers.withId(R.id.recycler_view))
+            .perform(
+                RecyclerViewActions
+                .scrollToPosition<NewsListItemViewHolder>(position))
+        onView(withText(text)).check(matches(isDisplayed()))
     }
 }

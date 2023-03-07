@@ -1,4 +1,4 @@
-package com.raywenderlich.rwnews.util.runner
+package com.raywenderlich.rwnews.runner
 
 import android.app.Application
 import android.content.Context
